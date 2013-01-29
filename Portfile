@@ -12,6 +12,9 @@ description	Various scripts to work with MacPorts
 license         BSD
 long_description ${description}
 
+fetch.type 	git
+git.url 	git://github.com/cooljeanius/macportsscripts.git
+
 use_configure	no
 build 	{}
 
