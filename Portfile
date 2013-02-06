@@ -22,6 +22,7 @@ build 	{}
 destroot {
 	    xinstall -d -m 755 ${destroot}${prefix}/bin
 	    eval xinstall -m 755 [glob ${worksrcpath}/*.sh] ${destroot}${prefix}/bin
+            eval xinstall -m 755 [glob ${worksrcpath}/*.pl] ${destroot}${prefix}/bin
 }
 
 livecheck.type	none
