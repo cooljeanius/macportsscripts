@@ -44,3 +44,4 @@ else
 	echo "$DIFF_CONTENTS" | tee $DIFF_FILE
 	echo "Output a diff file to $DIFF_FILE"
 fi
+
