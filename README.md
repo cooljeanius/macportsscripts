@@ -1,4 +1,4 @@
 macportsscripts
 ===============
 
-Various little scripts for MacPorts. So far there's only one but I intend to add more.
+Various little scripts for MacPorts. There used to be only one, but since then I've added more.
