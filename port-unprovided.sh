@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # Lists unprovided files in your MacPorts prefix
 #TODO: Add support for different prefixes
 
@@ -7,6 +7,7 @@ if [ -z "`which port`" ]; then
     exit 0
 fi
 
+#TODO: Add support for multiple flags (learn how to do `case` syntax)
 if [ "$1" == "--help" ]; then
 	echo "Usage:"
 	echo ""

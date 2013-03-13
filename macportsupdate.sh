@@ -1,4 +1,6 @@
 #!/macports/bin/bash
+# This script was taken from https://trac.macports.org/wiki/howto/AdvancedDailyAdm
+# I should probably update it to work with prefixes other than "/macports"
 
 #
 # usage:

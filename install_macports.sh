@@ -1,4 +1,8 @@
 #!/bin/bash
+# This script was taken from https://trac.macports.org/wiki/howto/AdvancedDailyAdm
+# If you're using the copy of this that came with the "macportsscripts" port, then
+# you probably won't need to use this, as that should mean that you already have 
+# MacPorts installed
 
 ################################################################################
 # copyright Bjarne D Mathiesen

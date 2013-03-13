@@ -1,4 +1,5 @@
 #!/usr/bin/env perl
+# taken from https://trac.macports.org/ticket/34482
 
 use strict;
 use warnings;

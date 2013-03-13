@@ -27,6 +27,8 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+# taken from https://trac.macports.org/ticket/21640
+
 if [[ ! -d "$1" || ! -d "$2" ]]; then
 
     echo "Please specify two directories."

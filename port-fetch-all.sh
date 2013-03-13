@@ -1,5 +1,6 @@
 #!/bin/bash
 # Fetches all the dependencies of a port
+# This was the original script that made up phw's original macportsscripts port.
 
 if [ $# -ne 1 ]
 then

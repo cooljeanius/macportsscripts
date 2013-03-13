@@ -1,4 +1,5 @@
 #!/bin/bash
+# This script was taken from https://trac.macports.org/wiki/Avidemux/Avidemux_2.6_script_MacOSX_10.6.8
 
 # Build avidemux 2.6 (SVN revision 7891)
 #

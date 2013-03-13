@@ -1,5 +1,6 @@
 #!/bin/bash
-# Script for users to use to report information that might be relevant when reporting tickets.
+# Script for users to use to report information that might be relevant when reporting 
+# tickets on trac.
 # Inspired by Homebrew's `brew --config`
 
 if [ -z "`which port`" ]; then
