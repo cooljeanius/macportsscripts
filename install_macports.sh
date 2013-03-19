@@ -25,13 +25,14 @@ cat <<EOT
 purpose : to automate the whole install process
 \${1} : action                 [ install (default) , paths ]
 \${2} : install prefix         ( default /macports )
-\${3} : macports base version  ( default 1.9.2 )
+\${3} : macports base version  ( default 2.1.3 )
 EOT
 }
 
 declare action=${1:-"install"}
+# Leaving this alternate prefix as-is, as we're installing a new MacPorts there
 declare prefix=${2:-"/macports"}
-declare version=${3:-"1.9.2"}
+declare version=${3:-"2.1.3"}
 
 case ${action} in
 ########################
@@ -67,6 +68,16 @@ echo "/Developer/usr/X11/share/man" >> /etc/manpaths.d/888developer
 # install macports
 'install')
 
+export OLDPWD=`pwd`
+if [ ! -z "$TMPDIR" ]; then
+	cd $TMPDIR
+	echo "cd `pwd`"
+else
+	export TMPDIR=/tmp
+	cd $TMPDIR
+	echo "cd `pwd`"
+fi
+
 if [ ! -e MacPorts-${version}.tar.gz ]
 then
     curl -O --url "http://distfiles.macports.org/MacPorts/MacPorts-${version}.tar.gz"
@@ -75,13 +86,20 @@ fi
 rm  -rf  ./MacPorts-${version}
 tar -zxf   MacPorts-${version}.tar.gz
 
+if [ -d /Developer/SDKs/MacOSX10.6.sdk/usr/X11/lib ]; then
+	export MP_LDFLAGS=-L/Developer/SDKs/MacOSX10.6.sdk/usr/X11/lib
+fi
+
 cd MacPorts-${version}
-./configure LDFLAGS=-L/Developer/SDKs/MacOSX10.6.sdk/usr/X11/lib --prefix=${prefix}
+./configure LDFLAGS=${MP_LDFLAGS} --prefix=${prefix}
 make
 make install
 
 # update MacPorts itself
 ${prefix}/bin/port -d selfupdate
+
+# let's get gawk
+${prefix}/bin/port install gawk
 
 # let's get bash
 ${prefix}/bin/port install bash

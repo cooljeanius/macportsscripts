@@ -10,6 +10,7 @@ fi
 
 echo "Configuration:"
 echo "\"port\" command found at `which port`"
+echo "Your MacPorts prefix is $(dirname $(dirname `which port`))"
 echo "Tcl found at `which tclsh`"
 echo "MacPorts is at `port version | tr V v`"
 echo "You have `port -q installed | wc -l | tr -d [:blank:]` ports installed"

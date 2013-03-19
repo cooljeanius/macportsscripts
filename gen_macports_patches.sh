@@ -29,6 +29,11 @@
 
 # taken from https://trac.macports.org/ticket/21640
 
+if [ -z "`which port`" ]; then
+	echo "MacPorts not found, this script is primarily for use with MacPorts."
+	exit 0
+fi
+
 if [[ ! -d "$1" || ! -d "$2" ]]; then
 
     echo "Please specify two directories."

@@ -21,10 +21,15 @@ if [ "$1" == "--help" ]; then
 	exit 0
 fi
 
-if [ -d /opt/local ]; then
+export MP_PREFIX=$(dirname $(dirname `which port`))
+if [ -z "$MP_PREFIX" ]; then
+	export MP_PREFIX=/opt/local
+fi
+
+if [ -d $MP_PREFIX ]; then
 	if [ "$1" == "-r" ]; then
 		echo "Generating list files in prefix, this might take a while..."
-		for directory in `find /opt/local/*`; do
+		for directory in `find ${MP_PREFIX}/*`; do
 			if [ -d ${directory} ]; then
 				if [ -z "`port provides ${directory}/* | grep "is not provided by a MacPorts port."`" ]; then
 					echo "${directory}: no unprovided files found here"
@@ -34,7 +39,7 @@ if [ -d /opt/local ]; then
 			fi
 		done
 	else
-		for directory in /opt/local/*; do
+		for directory in ${MP_PREFIX}/*; do
 			if [ -z "`port provides ${directory}/* | grep "is not provided by a MacPorts port."`" ]; then
 				echo "${directory}: no unprovided files found here"
 			else
@@ -42,6 +47,4 @@ if [ -d /opt/local ]; then
 			fi
 		done
 	fi
-else
-	echo "This script does not support alternate prefixes yet, sorry."
 fi

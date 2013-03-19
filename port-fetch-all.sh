@@ -14,7 +14,14 @@ if [ -z "`which port`" ]; then
     exit 0
 fi
 
-for i in `port -q rdeps $1`
+export MP_PREFIX=$(dirname $(dirname `which port`))
+if [ -z "$MP_PREFIX" ]; then
+	export MP_PREFIX=/opt/local
+fi
+
+for i in $(port -q rdeps $1 | tr -d [:blank:] | tr \\n \ )
 do
-	port fetch $i &
+	port -v checksum $i
+# The call to "sleep" is to prevent this script from becoming a forkbomb
+	sleep 1
 done

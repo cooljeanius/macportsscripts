@@ -5,11 +5,12 @@ PortSystem      1.0
 PortGroup       github 1.0
 
 epoch           2
-github.setup    cooljeanius macportsscripts 0.1.5 v
+github.setup    cooljeanius macportsscripts 0.2.0 v
 categories      sysutils macports
 platforms       darwin
 maintainers     phw gwmail.gwu.edu:egall openmaintainer
 license         BSD
+supported_archs noarch
 
 description     Various scripts to work with MacPorts
 

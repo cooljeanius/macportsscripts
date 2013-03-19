@@ -1,8 +1,24 @@
-#!/macports/bin/bash
+#!/bin/bash
 # This script was taken from https://trac.macports.org/wiki/howto/AdvancedDailyAdm
-# I should probably update it to work with prefixes other than "/macports"
 
-declare prefix=${1:-"/macports"}
+if [ -z "`which port`" ]; then
+	echo "MacPorts not found, this script is primarily for use with MacPorts."
+	exit 0
+fi
+
+export MP_PREFIX=$(dirname $(dirname `which port`))
+
+#!${MP_PREFIX}/bin/bash
+
+if [ -z "$MP_PREFIX" ]; then
+	export MP_PREFIX=/macports
+# "/macports" was what was originally used in this script
+fi
+
+declare prefix=${1:-"$MP_PREFIX"}
+
+#!${prefix}/bin/bash
+
 declare rsyncMacportsOrg="/var/macports/sources/rsync.macports.org/release/ports"
 
 (   cd $( dirname ${0} )

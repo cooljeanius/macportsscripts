@@ -16,6 +16,7 @@
 
 unset CDPATH IFS LC_ALL PATH MP_PREFIX
 
+# set a different prefix from the normal one because this script installs a new MacPorts there
 MP_PREFIX='/opt/macports-avidemux'
 IFS=$' \t\n'
 LC_ALL=C
@@ -77,9 +78,9 @@ cd "${avidemux_tmp_dir}" || exit 1
 unset PATH
 export PATH="${MP_PREFIX}/bin:/bin:/sbin:/usr/bin:/usr/sbin"
 
-
 port -v selfupdate
 
+port -f install gawk
 #port -f install llvm-3.1
 port -f install clang-3.1
 port -f install avidemux +aac+dts+lame+ogg+x264+xvid
@@ -91,7 +92,6 @@ port -f uninstall avidemux
 
 port -f uninstall gtk2
 port -f install gtk3
-
 
 sleep 3
 
