@@ -57,12 +57,17 @@ if [ -z "$MP_PREFIX" ]; then
 	export MP_PREFIX=/opt/local
 fi
 
+echo "Finding libraries that $1 links against..."
 # I should find a way to not have to pipe so much stuff through `cut` here...
 # http://trac.macports.org/ticket/38428
 echo $(port -q contents $1 | xargs file | grep Mach-O | cut -d\: -f1 | cut -d\  -f1 | uniq | xargs otool -L | grep "\ version\ " | grep "$MP_PREFIX" | cut -d\  -f1 | xargs port -q provides | cut -d\: -f2 | sort | uniq) | sed "s|$1 ||" | tr \  \\n >> $TMPFILE1
+
+echo "Finding the libraries that ${1}'s portfile lists as dependencies..."
 # I'd like there to be a `lib_depof:` type of pseudo-portname to use here: 
 # https://trac.macports.org/ticket/38381
 port info --line --depends_lib $1 | tr ',' '\n' | awk -F ':' '{ print $NF; }' | sort | uniq >> $TMPFILE2
+
+echo "Comparing the two lists..."
 DIFF_CONTENTS=$(diff -iwBu --strip-trailing-cr $TMPFILE2 $TMPFILE1)
 if [ -z "$DIFF_CONTENTS" ]; then
 	echo "No difference in dependencies, exiting."
