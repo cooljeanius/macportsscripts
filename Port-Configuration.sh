@@ -26,5 +26,5 @@ else
 	xcodebuild -showsdks
 fi
 echo "Environment:"
-env | sort | uniq
+env | sort | uniq | sed "s|$HOME|\\~|"
 echo "This script was run as \"$0\" by user \"`whoami`\" in `pwd`"
