@@ -29,7 +29,7 @@ fi
 if [ -d $MP_PREFIX ]; then
 	if [ "$1" == "-r" ]; then
 		echo "Generating list files in prefix, this might take a while..."
-		for directory in `find ${MP_PREFIX}/*`; do
+		for directory in `find ${MP_PREFIX}/* | tee /dev/tty`; do
 			if [ -d ${directory} ]; then
 				if [ -z "`port provides ${directory}/* | grep "is not provided by a MacPorts port."`" ]; then
 					echo "${directory}: no unprovided files found here"
