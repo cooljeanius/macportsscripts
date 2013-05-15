@@ -23,3 +23,7 @@ Usage
 - `port-patch.sh`: I don't use this one myself either, but apparently it will generate patches for portfiles...
 - `port-unprovided.sh`: This script will scan your MacPorts prefix for stray files in it that aren't provided by any ports. Pass it the `--help` flag for more info.
 
+License
+=======
+
+The portfile originally listed the license for this port as being BSD, so I guess that's what it'll stay as...
