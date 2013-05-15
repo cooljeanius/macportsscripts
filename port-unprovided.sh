@@ -21,6 +21,37 @@ if [ "$1" == "--help" ]; then
 	exit 0
 fi
 
+# This tempfile creation part is mainly taken from port-depcheck.sh
+#TODO: put this part in a common thing that can be `source`-ed
+tempfoo=$(basename $0)
+
+# The first few times I tried this script I had some trouble with my $TMPDIR;
+# that's why I'm making sure it exists and is set here.
+if [ -z "$TMPDIR" ]; then
+    export TMPDIR=/tmp
+fi
+if [ ! -d $TMPDIR ]; then
+    mkdir -p $TMPDIR
+fi
+
+# The "XXXX"es that `mktemp` replaces only work if they're at the very end
+# i.e. they don't get replaced when there's a file extension at the end like I have here
+if [ "$(date | cut -d\  -f5)" != "EDT" ]; then
+    SUFFIX_PT1=$(date | cut -d\  -f5 | tr -d :)
+    SUFFIX_PT2=$(date | cut -d\  -f7)
+else
+    SUFFIX_PT1=$(date | cut -d\  -f4 | tr -d :)
+    SUFFIX_PT2=$(date | cut -d\  -f6)
+fi
+
+SUFFIX=${SUFFIX_PT1}${SUFFIX_PT2}
+
+TMPFILE1=$(mktemp -q $TMPDIR/${tempfoo}.${SUFFIX}.log)
+if [ $? -ne 0 ]; then
+    echo "$0: Can't create temp file, exiting..."
+    exit 1
+fi
+
 export MP_PREFIX=$(dirname $(dirname `which port`))
 if [ -z "$MP_PREFIX" ]; then
 	export MP_PREFIX=/opt/local
@@ -29,12 +60,13 @@ fi
 if [ -d $MP_PREFIX ]; then
 	if [ "$1" == "-r" ]; then
 		echo "Generating list files in prefix, this might take a while..."
-		for directory in $(find ${MP_PREFIX}/* | tee /dev/tty); do
+        echo "(Also make sure you have a large scrollback buffer)"
+		for directory in $(find $MP_PREFIX/* \( -path $MP_PREFIX/var/macports -prune \) -o -print 2>/dev/null); do
 			if [ -d ${directory} ]; then
 				if [ -z "$(port provides ${directory}/* | grep "is not provided by a MacPorts port.")" ]; then
 					echo "${directory}: no unprovided files found here"
 				else
-					port provides ${directory}/* | grep "is not provided by a MacPorts port."
+					port provides ${directory}/* | grep "is not provided by a MacPorts port." | tee -a $TMPFILE1
 				fi
 			fi
 		done
@@ -43,8 +75,13 @@ if [ -d $MP_PREFIX ]; then
 			if [ -z "$(port provides ${directory}/* | grep "is not provided by a MacPorts port.")" ]; then
 				echo "${directory}: no unprovided files found here"
 			else
-				port provides ${directory}/* | grep "is not provided by a MacPorts port."
+				port provides ${directory}/* | grep "is not provided by a MacPorts port." | tee -a $TMPFILE1
 			fi
 		done
 	fi
+fi
+if [ ! -z "$(cat $TMPFILE1)" ]; then
+    echo "List of unprovided files output to $TMPFILE1"
+elif [ -w $TMPDIR -a -w $TMPFILE1 ]; then
+    rm -f $TMPFILE1
 fi
