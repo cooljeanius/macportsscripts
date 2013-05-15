@@ -3,27 +3,27 @@
 # links against.
 # `otool` is an OS X thing so don't go expecting to run this on other platforms
 
-if [ -z "`which port`" ]; then
+if [ -z "$(which port)" ]; then
 	echo "MacPorts not found, this script is primarily for use with MacPorts."
 	exit 0
 fi
 if [ -z "$1" ]; then
-	echo "Usage: `basename $0` portname"
+	echo "Usage: $(basename $0) portname"
 	exit 1
 fi
-if [ -z "`port list $1`" ]; then
+if [ -z "$(port list $1)" ]; then
 	echo "Error: port $1 not found"
 	exit 1
 fi
-if [ "`port installed $1`" = "None of the specified ports are installed." ]; then
-	echo "`port installed $1`"
+if [ "$(port installed $1)" = "None of the specified ports are installed." ]; then
+	echo "$(port installed $1)"
 	exit 1
 fi
 
-tempfoo=`basename $0`
+tempfoo=$(basename $0)
 # I added the suffix stuff before I knew that `mktemp` already added one for you;
 # I left them in anyway though because why not
-if [ "`date | cut -d\  -f5`" != "EDT" ]; then
+if [ "$(date | cut -d\  -f5)" != "EDT" ]; then
 	SUFFIX_PT1=$(date | cut -d\  -f5 | tr -d :)
 	SUFFIX_PT2=$(date | cut -d\  -f7)
 else
@@ -42,12 +42,12 @@ if [ ! -d $TMPDIR ]; then
 	mkdir -p $TMPDIR
 fi
 
-TMPFILE1=`mktemp -q $TMPDIR/${tempfoo}.${SUFFIX}1.XXXXXX`
+TMPFILE1=$(mktemp -q $TMPDIR/${tempfoo}.${SUFFIX}1.XXXXXX)
 if [ $? -ne 0 ]; then
 	echo "$0: Can't create first temp file, exiting..."
 	exit 1
 fi
-TMPFILE2=`mktemp -q $TMPDIR/${tempfoo}.${SUFFIX}2.XXXXXX`
+TMPFILE2=$(mktemp -q $TMPDIR/${tempfoo}.${SUFFIX}2.XXXXXX)
 if [ $? -ne 0 ]; then
 	echo "$0: Can't create second temp file, exiting..."
 	exit 1
@@ -60,7 +60,7 @@ fi
 echo "Finding libraries that $1 links against..."
 # I should find a way to not have to pipe so much stuff through `cut` here...
 # http://trac.macports.org/ticket/38428
-echo $(port -q contents $1 | xargs file | grep Mach-O | cut -d\: -f1 | cut -d\  -f1 | uniq | xargs otool -L | grep "\ version\ " | grep "$MP_PREFIX" | cut -d\  -f1 | xargs port -q provides | cut -d\: -f2 | sort | uniq) | sed "s|$1 ||" | tr \  \\n >> $TMPFILE1
+echo $(port -q contents $1 | xargs file | grep Mach-O | cut -d\: -f1 | cut -d\  -f1 | uniq | xargs otool -L | tee /dev/tty | grep "\ version\ " | grep "$MP_PREFIX" | cut -d\  -f1 | xargs port -q provides | tee /dev/tty | cut -d\: -f2 | sort | uniq) | sed "s|$1 ||" | tr \  \\n >> $TMPFILE1
 
 echo "Finding the libraries that ${1}'s portfile lists as dependencies..."
 # I'd like there to be a `lib_depof:` type of pseudo-portname to use here: 
