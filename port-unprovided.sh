@@ -1,6 +1,6 @@
 #!/bin/bash
 # Lists unprovided files in your MacPorts prefix
-#TODO: Add support for different prefixes
+#TODO: Add better support for different prefixes
 
 if [ -z "`which port`" ]; then
     echo "MacPorts not found, this script is primarily for use with MacPorts."
@@ -29,9 +29,9 @@ fi
 if [ -d $MP_PREFIX ]; then
 	if [ "$1" == "-r" ]; then
 		echo "Generating list files in prefix, this might take a while..."
-		for directory in `find ${MP_PREFIX}/* | tee /dev/tty`; do
+		for directory in $(find ${MP_PREFIX}/* | tee /dev/tty); do
 			if [ -d ${directory} ]; then
-				if [ -z "`port provides ${directory}/* | grep "is not provided by a MacPorts port."`" ]; then
+				if [ -z "$(port provides ${directory}/* | grep "is not provided by a MacPorts port.")" ]; then
 					echo "${directory}: no unprovided files found here"
 				else
 					port provides ${directory}/* | grep "is not provided by a MacPorts port."
@@ -40,7 +40,7 @@ if [ -d $MP_PREFIX ]; then
 		done
 	else
 		for directory in ${MP_PREFIX}/*; do
-			if [ -z "`port provides ${directory}/* | grep "is not provided by a MacPorts port."`" ]; then
+			if [ -z "$(port provides ${directory}/* | grep "is not provided by a MacPorts port.")" ]; then
 				echo "${directory}: no unprovided files found here"
 			else
 				port provides ${directory}/* | grep "is not provided by a MacPorts port."
