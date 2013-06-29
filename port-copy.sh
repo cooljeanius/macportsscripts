@@ -6,7 +6,15 @@ if [ -z "`which port`" ]; then
 	exit 0
 fi
 
-export MP_PREFIX=$(dirname $(dirname `which port`))
+if [ -L `which port` ]; then
+	REAL_PORT=$(readlink `which port`)
+	echo "Warning: `which port` is a symlink to ${REAL_PORT}."
+	export MP_PREFIX=$(dirname $(dirname ${REAL_PORT}))
+	echo "Assuming MP_PREFIX is actually ${MP_PREFIX}."
+else
+	export MP_PREFIX=$(dirname $(dirname `which port`))
+fi
+
 
 #!${MP_PREFIX}/bin/bash
 

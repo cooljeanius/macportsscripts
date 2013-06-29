@@ -52,10 +52,24 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-export MP_PREFIX=$(dirname $(dirname `which port`))
+if [ -L `which port` ]; then
+	REAL_PORT=$(readlink `which port`)
+	echo "Warning: `which port` is a symlink to ${REAL_PORT}."
+	export MP_PREFIX=$(dirname $(dirname ${REAL_PORT}))
+	echo "Assuming MP_PREFIX is actually ${MP_PREFIX}."
+else
+	export MP_PREFIX=$(dirname $(dirname `which port`))
+fi
+
 if [ -z "$MP_PREFIX" ]; then
 	export MP_PREFIX=/opt/local
 fi
+
+#TODO:
+# - Set list of unprovided files to a machine-readable variable
+# - read symlinks among files (delete broken ones?)
+# - grep for .mp_#### files; these are ones that MacPorts has moved aside
+# - when .mp_#### files are unprovided, that usually means they're safe to delete (so do so?)
 
 if [ -d $MP_PREFIX ]; then
 	if [ "$1" == "-r" ]; then

@@ -53,10 +53,23 @@ if [ $? -ne 0 ]; then
 	exit 1
 fi
 
-export MP_PREFIX=$(dirname $(dirname `which port`))
+if [ -L `which port` ]; then
+	REAL_PORT=$(readlink `which port`)
+	echo "Warning: `which port` is a symlink to ${REAL_PORT}."
+	export MP_PREFIX=$(dirname $(dirname ${REAL_PORT}))
+	echo "Assuming MP_PREFIX is actually ${MP_PREFIX}."
+else
+	export MP_PREFIX=$(dirname $(dirname `which port`))
+fi
+
 if [ -z "$MP_PREFIX" ]; then
 	export MP_PREFIX=/opt/local
 fi
+
+# TODO:
+# - Set list of libraries to a variable
+# - Check libtool archives for dependency_libs entries and see if any linkages are due to libtool overlinking
+# - Check libraries with nm(1) to see if they actually use symbols from the libraries they link against
 
 echo "Finding MacPorts libraries that $1 links against..."
 # I should find a way to not have to pipe so much stuff through `cut` here...
