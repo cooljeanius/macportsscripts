@@ -41,7 +41,9 @@ SUFFIX=${SUFFIX_PT1}${SUFFIX_PT2}
 if [ -z "$TMPDIR" ]; then
 	export TMPDIR=/tmp
 fi
-if [ ! -d $TMPDIR ]; then
+# This might be a paradox, but I cannot think of a better way to make sure that
+# this call to mkdir will actually succeed...
+if [ ! -d $TMPDIR -a -w ${TMPDIR}/.. ]; then
 	mkdir -p $TMPDIR
 fi
 
@@ -85,23 +87,65 @@ fi
 # -[X] Set list of libraries to a variable
 # -[X] Check libtool archives for dependency_libs entries and see if any linkages are due to libtool overlinking
 # -[X] Check libraries with nm(1) to see if they actually use symbols from the libraries they link against
-# -[ ] Actually parse the output from nm(1)
+# -[X] Actually parse the output from nm(1)
 # -[ ] Figure out if it is safe to remove the dependencies that are probably due to libtool overlinking
 
 echo "Finding MacPorts libraries that $1 links against..."
 # I should find a way to not have to pipe so much stuff through `cut` here...
 # http://trac.macports.org/ticket/38428
 MACH_O_FILES=$(port -q contents $1 | xargs file | grep Mach-O | cut -d\: -f1 | cut -d\  -f1 | uniq)
-LINKED_AGAINST_LIBS=$(echo $MACH_O_FILES | xargs otool -L | grep "\ version\ " | grep "$MP_PREFIX" | sort | uniq | cut -d\  -f1) 
-SYMBOLS=$(echo $MACH_O_FILES | xargs nm)
-echo $SYMBOLS >> $TMPFILE4
-echo $(echo $LINKED_AGAINST_LIBS | xargs port -q provides | tee -a /dev/tty | cut -d\: -f2 | sort | uniq) | sed "s|$1 ||" | tr \  \\n >> $TMPFILE1
+if [ ! -z "$MACH_O_FILES" ]; then
+	LINKED_AGAINST_LIBS=$(echo $MACH_O_FILES | xargs otool -L | grep "\ version\ " | grep "$MP_PREFIX" | sort | uniq | cut -d\  -f1) 
+	SYMBOLS=$(for macho in $MACH_O_FILES; do nm -m $macho && echo ""; done && echo "")
+	echo "$SYMBOLS" >> $TMPFILE4
+	echo "" >> $TMPFILE4
+	if [ ! -z "$LINKED_AGAINST_LIBS" ]; then
+		echo $(echo $LINKED_AGAINST_LIBS | xargs port -q provides | tee -a /dev/tty | cut -d\: -f2 | sort | uniq) | sed "s|$1 ||" | tr \  \\n >> $TMPFILE1
+		if [ ! -z "$SYMBOLS" -a -e $TMPFILE4 ]; then
+			echo "Checking symbols in linked-against libraries..."
+			for MP_LIBRARY in $(echo ${LINKED_AGAINST_LIBS} | xargs basename | cut -d. -f1 | cut -d\- -f1); do
+				echo "Checking to see if $1 actually uses symbols from ${MP_LIBRARY}... \c"
+				if [ ! -z "$(grep $MP_LIBRARY $TMPFILE4)" ]; then
+					echo "yes"
+				else
+					# TODO:
+					# -[ ] Do something with these "no" responses...
+					echo "no"
+				fi
+			done
+		else
+			echo "Warning: libraries have no symbols... (how did that happen?)"
+		fi
+	else
+		echo "$1 does not actually link against any MacPorts libraries, exiting..."
+		exit 1
+	fi
+else
+	echo "$1 does not actually contain any mach-o binaries, exiting..."
+	exit 1
+fi
 
-echo "Finding which linkages are probably due to libtool over-linking..."
-LIBTOOL_ARCHIVES=$(port -q contents $1 | xargs file | grep "libtool library file" | cut -d\: -f1 | cut -d\  -f1 | uniq)
-DEPENDENCY_LIBS=$(cat $LIBTOOL_ARCHIVES | grep "dependency_libs" | tr \  \\n | grep "$MP_PREFIX" | grep \.la)
-DEPENDENCY_PROVIDERS=$(echo $DEPENDENCY_LIBS | xargs port -q provides | cut -d\: -f2 | sort | uniq | tr -d [:blank:] | sed "s|$1||" | tee -a /dev/tty)
-echo $DEPENDENCY_PROVIDERS >> $TMPFILE3
+if [ ! -z "`port -q installed libtool`" -a $(port -q version | cut -d: -f2 | cut -d. -f1) -eq 2 -a $(port -q version | cut -d: -f2 | cut -d. -f2) -lt 2 ]; then
+	echo "Finding which linkages might be due to libtool over-linking..."
+	LIBTOOL_ARCHIVES=$(port -q contents $1 | xargs file | grep "libtool library file" | cut -d\: -f1 | cut -d\  -f1 | uniq)
+	if [ ! -z "$LIBTOOL_ARCHIVES" ]; then
+		DEPENDENCY_LIBS=$(cat $LIBTOOL_ARCHIVES | grep "dependency_libs" | tr \  \\n | grep "$MP_PREFIX" | grep \.la)
+		# TODO:
+		# -[ ] Handle the dangling single-quotes in a way that does not confuse the syntax highlighting in my text editor...
+		if [ ! -z "$DEPENDENCY_LIBS" ]; then
+			echo $DEPENDENCY_LIBS
+			echo "Checking which ports provide dependency_libs entries in these libtool archives..."
+			DEPENDENCY_PROVIDERS=$(echo $DEPENDENCY_LIBS | xargs port -q provides | cut -d\: -f2 | uniq | sort | uniq | tr -d [:blank:] | sed "s|$1||" | tr -d [:blank:] | uniq | tee -a /dev/tty)
+			echo $DEPENDENCY_PROVIDERS >> $TMPFILE3
+		else
+			echo "libtool archives have already been cleared of dependency_libs; libtool over-linking likely is not a problem..."
+		fi
+	else
+		echo "Actually, no libtool archives were found, so never mind."
+	fi
+else
+	echo "Checking libtool archives should not be necessary here."
+fi
 
 echo "Finding the libraries that $(port file ${1}) lists as dependencies..."
 # I'd like there to be a `lib_depof:` type of pseudo-portname to use here: 
