@@ -110,7 +110,7 @@ if [ ! -z "$MACH_O_FILES" ]; then
 				else
 					# TODO:
 					# -[ ] Do something with these "no" responses...
-					echo "no"
+					echo "no (TODO: remove from list of dependencies)"
 				fi
 			done
 		else
@@ -125,26 +125,30 @@ else
 	exit 1
 fi
 
-if [ ! -z "`port -q installed libtool`" -a $(port -q version | cut -d: -f2 | cut -d. -f1) -eq 2 -a $(port -q version | cut -d: -f2 | cut -d. -f2) -lt 2 ]; then
-	echo "Finding which linkages might be due to libtool over-linking..."
-	LIBTOOL_ARCHIVES=$(port -q contents $1 | xargs file | grep "libtool library file" | cut -d\: -f1 | cut -d\  -f1 | uniq)
-	if [ ! -z "$LIBTOOL_ARCHIVES" ]; then
-		DEPENDENCY_LIBS=$(cat $LIBTOOL_ARCHIVES | grep "dependency_libs" | tr \  \\n | grep "$MP_PREFIX" | grep \.la)
-		# TODO:
-		# -[ ] Handle the dangling single-quotes in a way that does not confuse the syntax highlighting in my text editor...
-		if [ ! -z "$DEPENDENCY_LIBS" ]; then
-			echo $DEPENDENCY_LIBS
-			echo "Checking which ports provide dependency_libs entries in these libtool archives..."
-			DEPENDENCY_PROVIDERS=$(echo $DEPENDENCY_LIBS | xargs port -q provides | cut -d\: -f2 | uniq | sort | uniq | tr -d [:blank:] | sed "s|$1||" | tr -d [:blank:] | uniq | tee -a /dev/tty)
-			echo $DEPENDENCY_PROVIDERS >> $TMPFILE3
+if [ $(port -q version | cut -d: -f2 | cut -d. -f1) -eq 2 -a $(port -q version | cut -d: -f2 | cut -d. -f2) -lt 2 ]; then
+	if [ ! -z "`port -q installed libtool`" ];then
+		echo "Finding which linkages might be due to libtool over-linking..."
+		LIBTOOL_ARCHIVES=$(port -q contents $1 | xargs file | grep "libtool library file" | cut -d\: -f1 | cut -d\  -f1 | uniq)
+		if [ ! -z "$LIBTOOL_ARCHIVES" ]; then
+			DEPENDENCY_LIBS=$(cat $LIBTOOL_ARCHIVES | grep "dependency_libs" | tr \  \\n | grep "$MP_PREFIX" | grep \.la)
+			# TODO:
+			# -[ ] Handle the dangling single-quotes in a way that does not confuse the syntax highlighting in my text editor...
+			if [ ! -z "$DEPENDENCY_LIBS" ]; then
+				echo $DEPENDENCY_LIBS
+				echo "Checking which ports provide dependency_libs entries in these libtool archives..."
+				DEPENDENCY_PROVIDERS=$(echo $DEPENDENCY_LIBS | xargs port -q provides | cut -d\: -f2 | uniq | sort | uniq | tr -d [:blank:] | sed "s|$1||" | tr -d [:blank:] | uniq | tee -a /dev/tty)
+				echo $DEPENDENCY_PROVIDERS >> $TMPFILE3
+			else
+				echo "libtool archives have already been cleared of dependency_libs; libtool over-linking likely is not a problem..."
+			fi
 		else
-			echo "libtool archives have already been cleared of dependency_libs; libtool over-linking likely is not a problem..."
+			echo "Actually, no libtool archives were found, so never mind."
 		fi
 	else
-		echo "Actually, no libtool archives were found, so never mind."
+		echo "You do not have the libtool port installed; no need to check for libtool over-linking."
 	fi
 else
-	echo "Checking libtool archives should not be necessary here."
+	echo "Checking libtool archives for overlinking should not be necessary for your MacPorts version (`port -q version`)"
 fi
 
 echo "Finding the libraries that $(port file ${1}) lists as dependencies..."
