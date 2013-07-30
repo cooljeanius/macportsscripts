@@ -70,6 +70,14 @@ if [ $? -ne 0 ]; then
 	exit 1
 fi
 
+delete_tmpfiles() {
+    for TMPFILE_TO_DELETE in $TMPFILE1 $TMPFILE2 $TMPFILE3 $TMPFILE4; do
+    	if [ -w $TMPDIR -a -w $TMPFILE_TO_DELETE ]; then
+        	rm -f $TMPFILE_TO_DELETE
+    	fi
+    done
+}
+
 if [ -L `which port` ]; then
 	REAL_PORT=$(readlink `which port`)
 	echo "Warning: `which port` is a symlink to ${REAL_PORT}."
@@ -84,11 +92,8 @@ if [ -z "$MP_PREFIX" ]; then
 fi
 
 # TODO:
-# -[X] Set list of libraries to a variable
-# -[X] Check libtool archives for dependency_libs entries and see if any linkages are due to libtool overlinking
-# -[X] Check libraries with nm(1) to see if they actually use symbols from the libraries they link against
-# -[X] Actually parse the output from nm(1)
 # -[ ] Figure out if it is safe to remove the dependencies that are probably due to libtool overlinking
+# -[ ] Actually do the removing
 
 echo "Finding MacPorts libraries that $1 links against..."
 # I should find a way to not have to pipe so much stuff through `cut` here...
@@ -118,10 +123,12 @@ if [ ! -z "$MACH_O_FILES" ]; then
 		fi
 	else
 		echo "$1 does not actually link against any MacPorts libraries, exiting..."
+		delete_tmpfiles
 		exit 1
 	fi
 else
 	echo "$1 does not actually contain any mach-o binaries, exiting..."
+	delete_tmpfiles
 	exit 1
 fi
 
@@ -160,20 +167,7 @@ echo "Comparing the list of library linkages with the list of library dependenci
 DIFF_CONTENTS=$(diff -iwBu --strip-trailing-cr $TMPFILE2 $TMPFILE1)
 if [ -z "$DIFF_CONTENTS" ]; then
 	echo "No difference in dependencies, exiting."
-    # TODO: 
-    # -[ ] As above, make this a function (or use a loop) so I don't have to copy and paste as much
-    if [ -w $TMPDIR -a -w $TMPFILE1 ]; then
-        rm -f $TMPFILE1
-    fi
-    if [ -w $TMPDIR -a -w $TMPFILE2 ]; then
-        rm -f $TMPFILE2
-    fi
-    if [ -w $TMPDIR -a -w $TMPFILE3 ]; then
-        rm -f $TMPFILE3
-    fi
-    if [ -w $TMPDIR -a -w $TMPFILE4 ]; then
-        rm -f $TMPFILE4
-    fi
+	delete_tmpfiles
 	exit 1
 else
 	DIFF_FILE=$TMPDIR/${1}-deps.${SUFFIX}.diff
