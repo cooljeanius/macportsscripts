@@ -101,7 +101,7 @@ echo "Finding MacPorts libraries that $1 links against..."
 MACH_O_FILES=$(port -q contents $1 | xargs file | grep Mach-O | cut -d\: -f1 | cut -d\  -f1 | uniq)
 if [ ! -z "$MACH_O_FILES" ]; then
 	LINKED_AGAINST_LIBS=$(echo $MACH_O_FILES | xargs otool -L | grep "\ version\ " | grep "$MP_PREFIX" | sort | uniq | cut -d\  -f1) 
-	SYMBOLS=$(for macho in $MACH_O_FILES; do nm -m $macho && echo ""; done && echo "")
+	SYMBOLS=$(for macho in $MACH_O_FILES; do if [ ! -z "$macho" ]; then nm -m $macho 2>/dev/null && echo ""; fi && echo ""; done && echo "")
 	echo "$SYMBOLS" >> $TMPFILE4
 	echo "" >> $TMPFILE4
 	if [ ! -z "$LINKED_AGAINST_LIBS" ]; then
