@@ -1,7 +1,8 @@
 #!/bin/bash
 # A script to check the dependencies of a port against which libraries the port actually 
 # links against.
-# `otool` is an OS X thing so don't go expecting to run this on other platforms
+# `otool` is an OS X thing (from cctools), so do NOT go expecting to run this on 
+# other platforms
 
 if [ -z "$(which port)" ]; then
 	echo "MacPorts not found, this script is primarily for use with MacPorts."
