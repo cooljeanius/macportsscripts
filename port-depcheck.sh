@@ -48,25 +48,25 @@ if [ ! -d $TMPDIR -a -w ${TMPDIR}/.. ]; then
 fi
 
 # TODO: 
-# -[ ] Make a function (or use a loop) to do this so I don't have to copy and paste as much
+# -[ ] Make a function (or use a loop) to do this so I do not have to copy and paste as much
 TMPFILE1=$(mktemp -q $TMPDIR/${tempfoo}.${SUFFIX}1.XXXXXX)
 if [ $? -ne 0 ]; then
-	echo "$0: Can't create first temp file, exiting..."
+	echo "$0: Cannot create first temp file, exiting..."
 	exit 1
 fi
 TMPFILE2=$(mktemp -q $TMPDIR/${tempfoo}.${SUFFIX}2.XXXXXX)
 if [ $? -ne 0 ]; then
-	echo "$0: Can't create second temp file, exiting..."
+	echo "$0: Cannot create second temp file, exiting..."
 	exit 1
 fi
 TMPFILE3=$(mktemp -q $TMPDIR/${tempfoo}.${SUFFIX}3.XXXXXX)
 if [ $? -ne 0 ]; then
-	echo "$0: Can't create third temp file, exiting..."
+	echo "$0: Cannot create third temp file, exiting..."
 	exit 1
 fi
 TMPFILE4=$(mktemp -q $TMPDIR/${tempfoo}.${SUFFIX}4.XXXXXX)
 if [ $? -ne 0 ]; then
-	echo "$0: Can't create fourth temp file, exiting..."
+	echo "$0: Cannot create fourth temp file, exiting..."
 	exit 1
 fi
 
