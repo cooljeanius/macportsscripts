@@ -37,7 +37,7 @@ fi
 SUFFIX=${SUFFIX_PT1}${SUFFIX_PT2}
 
 # The first few times I tried this script I had some trouble with my $TMPDIR;
-# that's why I'm making sure it exists and is set here.
+# that is why I am making sure it exists and is set here.
 if [ -z "$TMPDIR" ]; then
 	export TMPDIR=/tmp
 fi
@@ -98,7 +98,7 @@ fi
 echo "Finding MacPorts libraries that $1 links against..."
 # I should find a way to not have to pipe so much stuff through `cut` here...
 # http://trac.macports.org/ticket/38428
-MACH_O_FILES=$(port -q contents $1 | xargs file | grep Mach-O | cut -d\: -f1 | cut -d\  -f1 | uniq)
+MACH_O_FILES=$(port -q contents $1 | xargs /usr/bin/file | grep Mach-O | cut -d\: -f1 | cut -d\  -f1 | uniq)
 if [ ! -z "$MACH_O_FILES" ]; then
 	LINKED_AGAINST_LIBS=$(echo $MACH_O_FILES | xargs otool -L | grep "\ version\ " | grep "$MP_PREFIX" | sort | uniq | cut -d\  -f1) 
 	SYMBOLS=$(for macho in $MACH_O_FILES; do if [ ! -z "$macho" ]; then nm -m $macho 2>/dev/null && echo ""; fi && echo ""; done && echo "")
