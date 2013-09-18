@@ -160,7 +160,7 @@ else
 fi
 
 echo "Finding the libraries that $(port file ${1}) lists as dependencies..."
-# I'd like there to be a `lib_depof:` type of pseudo-portname to use here: 
+# I would like there to be a `lib_depof:` type of pseudo-portname to use here: 
 # https://trac.macports.org/ticket/38381
 port info --line --depends_lib $1 | tr ',' '\n' | tee -a /dev/tty | awk -F ':' '{ print $NF; }' | sort | uniq >> $TMPFILE2
 
