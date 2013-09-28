@@ -174,4 +174,6 @@ else
 	DIFF_FILE=$TMPDIR/${1}-deps.${SUFFIX}.diff
 	echo "$DIFF_CONTENTS" | tee $DIFF_FILE
 	echo "Output a diff file to $DIFF_FILE"
+	echo "${1} is installed as \"`port -q installed ${1} | grep \(active\) | cut -d\  -f3,4`\"; some of the dependencies listed as needing-to-be-added might already be listed under a variant..."
+	echo "(TODO: have this script check dependencies of installed variants instead of just the default variants...)"
 fi
