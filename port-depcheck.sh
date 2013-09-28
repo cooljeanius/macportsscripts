@@ -156,13 +156,18 @@ if [ $(port -q version | cut -d: -f2 | cut -d. -f1) -eq 2 -a $(port -q version |
 		echo "You do not have the libtool port installed; no need to check for libtool over-linking."
 	fi
 else
-	echo "Checking libtool archives for overlinking should not be necessary for your MacPorts version (`port -q version`)"
+	echo "Checking libtool archives for overlinking should not be necessary for your MacPorts version (`port -q version`), unless you have NOT rebuilt everything since you updated..."
+	echo "This script does NOT know whether or not you have rebuilt as such though, so we shall assume the best of you and skip the libtool-archives check."
+	echo "(the libtool-archives check was just a back-up check in case the check with \`nm(1)\` failed, anyways, so skipping it should be harmless)"
 fi
 
 echo "Finding the libraries that $(port file ${1}) lists as dependencies..."
+ACTIVE_VARIANTS=$(port -q installed ${1} | grep \(active\) | cut -d\  -f4)
+echo "${1} is installed with the following active variants: ${ACTIVE_VARIANTS}"
+echo "So we shall find the dependencies for those variants..."
 # I would like there to be a `lib_depof:` type of pseudo-portname to use here: 
 # https://trac.macports.org/ticket/38381
-port info --line --depends_lib $1 | tr ',' '\n' | tee -a /dev/tty | awk -F ':' '{ print $NF; }' | sort | uniq >> $TMPFILE2
+port info --line --depends_lib $1 ${ACTIVE_VARIANTS} | tr ',' '\n' | tee -a /dev/tty | awk -F ':' '{ print $NF; }' | sort | uniq >> $TMPFILE2
 
 echo "Comparing the list of library linkages with the list of library dependencies..."
 DIFF_CONTENTS=$(diff -iwBu --strip-trailing-cr $TMPFILE2 $TMPFILE1)
@@ -174,6 +179,4 @@ else
 	DIFF_FILE=$TMPDIR/${1}-deps.${SUFFIX}.diff
 	echo "$DIFF_CONTENTS" | tee $DIFF_FILE
 	echo "Output a diff file to $DIFF_FILE"
-	echo "${1} is installed as \"`port -q installed ${1} | grep \(active\) | cut -d\  -f3,4`\"; some of the dependencies listed as needing-to-be-added might already be listed under a variant..."
-	echo "(TODO: have this script check dependencies of installed variants instead of just the default variants...)"
 fi
