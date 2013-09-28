@@ -106,6 +106,7 @@ if [ ! -z "$MACH_O_FILES" ]; then
 	echo "$SYMBOLS" >> $TMPFILE4
 	echo "" >> $TMPFILE4
 	if [ ! -z "$LINKED_AGAINST_LIBS" ]; then
+		# This is the part where we actually get the ports linked against:
 		echo $(echo $LINKED_AGAINST_LIBS | xargs port -q provides | tee -a /dev/tty | cut -d\: -f2 | sort | uniq) | sed "s|$1 ||" | tr \  \\n >> $TMPFILE1
 		if [ ! -z "$SYMBOLS" -a -e $TMPFILE4 ]; then
 			echo "Checking symbols in linked-against libraries..."
