@@ -49,7 +49,12 @@ if [ ! -d $TMPDIR -a -w ${TMPDIR}/.. ]; then
 fi
 
 # TODO: 
-# -[ ] Make a function (or use a loop) to do this so I do not have to copy and paste as much
+# -[ ] Make a function (or use a loop) to do this so I do not have to copy-n-paste as much
+TMPFILE0=$(mktemp -q $TMPDIR/${tempfoo}.${SUFFIX}0.XXXXXX)
+if [ $? -ne 0 ]; then
+	echo "$0: Cannot create zeroth temp file, exiting..."
+	exit 1
+fi
 TMPFILE1=$(mktemp -q $TMPDIR/${tempfoo}.${SUFFIX}1.XXXXXX)
 if [ $? -ne 0 ]; then
 	echo "$0: Cannot create first temp file, exiting..."
@@ -72,11 +77,18 @@ if [ $? -ne 0 ]; then
 fi
 
 delete_tmpfiles() {
-    for TMPFILE_TO_DELETE in $TMPFILE1 $TMPFILE2 $TMPFILE3 $TMPFILE4; do
+    for TMPFILE_TO_DELETE in $TMPFILE0 $TMPFILE1 $TMPFILE2 $TMPFILE3 $TMPFILE4; do
     	if [ -w $TMPDIR -a -w $TMPFILE_TO_DELETE ]; then
         	rm -f $TMPFILE_TO_DELETE
     	fi
     done
+}
+
+# This one gets a special case because there are more reasons to delete it:
+delete_tmpfile3() {
+    if [ -w $TMPDIR -a -w $TMPFILE3 ]; then
+        rm -f $TMPFILE3
+    fi
 }
 
 if [ -L `which port` ]; then
@@ -102,22 +114,27 @@ echo "Finding MacPorts libraries that $1 links against..."
 MACH_O_FILES=$(port -q contents $1 | xargs /usr/bin/file | grep Mach-O | cut -d\: -f1 | cut -d\  -f1 | uniq)
 if [ ! -z "$MACH_O_FILES" ]; then
 	LINKED_AGAINST_LIBS=$(echo $MACH_O_FILES | xargs otool -L | grep "\ version\ " | grep "$MP_PREFIX" | sort | uniq | cut -d\  -f1) 
+	echo "$LINKED_AGAINST_LIBS" >> $TMPFILE0
 	SYMBOLS=$(for macho in $MACH_O_FILES; do if [ ! -z "$macho" ]; then nm -m $macho 2>/dev/null && echo ""; fi && echo ""; done && echo "")
 	echo "$SYMBOLS" >> $TMPFILE4
 	echo "" >> $TMPFILE4
 	if [ ! -z "$LINKED_AGAINST_LIBS" ]; then
 		# This is the part where we actually get the ports linked against:
-		echo $(echo $LINKED_AGAINST_LIBS | xargs port -q provides | tee -a /dev/tty | cut -d\: -f2 | sort | uniq) | sed "s|$1 ||" | tr \  \\n >> $TMPFILE1
+		echo $(cat $TMPFILE0 | xargs port -q provides 2>/dev/null | grep "is provided by" | tee -a /dev/tty | cut -d\: -f2 | sort | uniq) | sed "s|$1 ||" | tr \  \\n >> $TMPFILE1
 		if [ ! -z "$SYMBOLS" -a -e $TMPFILE4 ]; then
+			# TODO:
+			# -[ ] add an environment variable or flag that can be set to skip this step
 			echo "Checking symbols in linked-against libraries..."
-			for MP_LIBRARY in $(echo ${LINKED_AGAINST_LIBS} | xargs basename | cut -d. -f1 | cut -d\- -f1); do
+			for MP_LIBRARY in $(echo ${LINKED_AGAINST_LIBS} | uniq | xargs basename | uniq | cut -d. -f1 | uniq | cut -d\- -f1 | uniq); do
 				echo "Checking to see if $1 actually uses symbols from ${MP_LIBRARY}... \c"
 				if [ ! -z "$(grep $MP_LIBRARY $TMPFILE4)" ]; then
 					echo "yes"
 				else
-					# TODO:
-					# -[ ] Do something with these "no" responses...
-					echo "no (TODO: remove from list of dependencies)"
+					PORT_TO_REMOVE="`cat $TMPFILE0 | uniq | sort | uniq | xargs port -q provides 2>/dev/null | grep \"is provided by\" | uniq | sort | uniq | grep $MP_LIBRARY | uniq | sort | uniq | cut -d\: -f2 | uniq | sort | uniq`"
+					echo "no, removing \"$(printf ${PORT_TO_REMOVE} | tr \\n \  )\" from list of dependencies.."
+					sed -i "s|$(printf ${PORT_TO_REMOVE} | tr \\n \  )||" ${TMPFILE1}
+					NEW_TMPFILE1="$(cat ${TMPFILE1} | uniq | sort | uniq)"
+					echo $NEW_TMPFILE1 | tr \  \\n > ${TMPFILE1}
 				fi
 			done
 		else
@@ -149,17 +166,21 @@ if [ $(port -q version | cut -d: -f2 | cut -d. -f1) -eq 2 -a $(port -q version |
 				echo $DEPENDENCY_PROVIDERS >> $TMPFILE3
 			else
 				echo "libtool archives have already been cleared of dependency_libs; libtool over-linking likely is not a problem..."
+				delete_tmpfile3
 			fi
 		else
 			echo "Actually, no libtool archives were found, so never mind."
+			delete_tmpfile3
 		fi
 	else
 		echo "You do not have the libtool port installed; no need to check for libtool over-linking."
+		delete_tmpfile3
 	fi
 else
 	echo "Checking libtool archives for overlinking should not be necessary for your MacPorts version (`port -q version`), unless you have NOT rebuilt everything since you updated..."
 	echo "This script does NOT know whether or not you have rebuilt as such though, so we shall assume the best of you and skip the libtool-archives check."
 	echo "(the libtool-archives check was just a back-up check in case the check with \`nm(1)\` failed, anyways, so skipping it should be harmless)"
+	delete_tmpfile3
 fi
 
 echo "Finding the libraries that $(port file ${1}) lists as dependencies..."
