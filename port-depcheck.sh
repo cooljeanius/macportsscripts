@@ -122,21 +122,23 @@ if [ ! -z "$MACH_O_FILES" ]; then
 		# This is the part where we actually get the ports linked against:
 		echo $(cat $TMPFILE0 | xargs port -q provides 2>/dev/null | grep "is provided by" | tee -a /dev/tty | cut -d\: -f2 | sort | uniq) | sed "s|$1 ||" | tr \  \\n >> $TMPFILE1
 		if [ ! -z "$SYMBOLS" -a -e $TMPFILE4 ]; then
-			# TODO:
-			# -[ ] add an environment variable or flag that can be set to skip this step
-			echo "Checking symbols in linked-against libraries..."
-			for MP_LIBRARY in $(echo ${LINKED_AGAINST_LIBS} | uniq | xargs basename | uniq | cut -d. -f1 | uniq | cut -d\- -f1 | uniq); do
-				echo "Checking to see if $1 actually uses symbols from ${MP_LIBRARY}... \c"
-				if [ ! -z "$(grep $MP_LIBRARY $TMPFILE4)" ]; then
-					echo "yes"
-				else
-					PORT_TO_REMOVE="`cat $TMPFILE0 | uniq | sort | uniq | xargs port -q provides 2>/dev/null | grep \"is provided by\" | uniq | sort | uniq | grep $MP_LIBRARY | uniq | sort | uniq | cut -d\: -f2 | uniq | sort | uniq`"
-					echo "no, removing \"$(printf ${PORT_TO_REMOVE} | tr \\n \  )\" from list of dependencies.."
-					sed -i "s|$(printf ${PORT_TO_REMOVE} | tr \\n \  )||" ${TMPFILE1}
-					NEW_TMPFILE1="$(cat ${TMPFILE1} | uniq | sort | uniq)"
-					echo $NEW_TMPFILE1 | tr \  \\n > ${TMPFILE1}
-				fi
-			done
+			if [ -z "$PORT_DEPCHECK_SKIP_NM_SYMBOL_CHECK" ]; then
+				echo "Checking symbols in linked-against libraries..."
+				for MP_LIBRARY in $(echo ${LINKED_AGAINST_LIBS} | uniq | xargs basename | uniq | cut -d. -f1 | uniq | cut -d\- -f1 | uniq); do
+					echo "Checking to see if $1 actually uses symbols from ${MP_LIBRARY}... \c"
+					if [ ! -z "$(grep $MP_LIBRARY $TMPFILE4)" ]; then
+						echo "yes"
+					else
+						PORT_TO_REMOVE="`cat $TMPFILE0 | uniq | sort | uniq | xargs port -q provides 2>/dev/null | grep \"is provided by\" | uniq | sort | uniq | grep $MP_LIBRARY | uniq | sort | uniq | cut -d\: -f2 | uniq | sort | uniq`"
+						echo "no, removing \"$(printf ${PORT_TO_REMOVE} | tr \\n \  )\" from list of dependencies.."
+						sed -i "s|$(printf ${PORT_TO_REMOVE} | tr \\n \  )||" ${TMPFILE1}
+						NEW_TMPFILE1="$(cat ${TMPFILE1} | uniq | sort | uniq)"
+						echo $NEW_TMPFILE1 | tr \  \\n > ${TMPFILE1}
+					fi
+				done
+			else
+				echo "The environment variable to skip the symbol check is set."
+			fi
 		else
 			echo "Warning: libraries have no symbols... (how did that happen?)"
 		fi
