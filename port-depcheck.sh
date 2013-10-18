@@ -130,10 +130,14 @@ if [ ! -z "$MACH_O_FILES" ]; then
 						echo "yes"
 					else
 						PORT_TO_REMOVE="`cat $TMPFILE0 | uniq | sort | uniq | xargs port -q provides 2>/dev/null | grep \"is provided by\" | uniq | sort | uniq | grep $MP_LIBRARY | uniq | sort | uniq | cut -d\: -f2 | uniq | sort | uniq`"
-						echo "no, removing \"$(printf ${PORT_TO_REMOVE} | tr \\n \  )\" from list of dependencies.."
-						sed -i "s|$(printf ${PORT_TO_REMOVE} | tr \\n \  )||" ${TMPFILE1}
-						NEW_TMPFILE1="$(cat ${TMPFILE1} | uniq | sort | uniq)"
-						echo $NEW_TMPFILE1 | tr \  \\n > ${TMPFILE1}
+						if [ -z "$PORT_DEPCHECK_KEEP_PORTS_THAT_FAIL_SYMBOL_CHECK" ]; then
+							echo "no, removing \"$(printf ${PORT_TO_REMOVE} | tr \\n \  )\" from list of dependencies.."
+							sed -i "s|$(printf ${PORT_TO_REMOVE} | tr \\n \  )||" ${TMPFILE1}
+							NEW_TMPFILE1="$(cat ${TMPFILE1} | uniq | sort | uniq)"
+							echo $NEW_TMPFILE1 | tr \  \\n > ${TMPFILE1}
+						else
+							echo "no, but an environment variable is set so that you will have to remove \"$(printf ${PORT_TO_REMOVE} | tr \\n \  )\" from the list of dependencies manually..."
+						fi
 					fi
 				done
 			else
