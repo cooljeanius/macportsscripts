@@ -1,8 +1,8 @@
 #!/bin/bash
 # This script was taken from https://trac.macports.org/wiki/howto/AdvancedDailyAdm
-# If you're using the copy of this that came with the "macportsscripts" port, then
-# you probably won't need to use this, as that should mean that you already have 
-# MacPorts installed
+# If you are using the copy of this that came with the "macportsscripts" port,
+# then you probably will NOT need to use this, as that should mean that you
+# already have MacPorts installed
 
 ################################################################################
 # copyright Bjarne D Mathiesen
@@ -25,14 +25,14 @@ cat <<EOT
 purpose : to automate the whole install process
 \${1} : action                 [ install (default) , paths ]
 \${2} : install prefix         ( default /macports )
-\${3} : macports base version  ( default 2.1.3 )
+\${3} : macports base version  ( default 2.2.1 )
 EOT
 }
 
 declare action=${1:-"install"}
-# Leaving this alternate prefix as-is, as we're installing a new MacPorts there
+# Leaving this alternate prefix as-is, as we are installing a new MacPorts there
 declare prefix=${2:-"/macports"}
-declare version=${3:-"2.1.3"}
+declare version=${3:-"2.2.1"}
 
 case ${action} in
 ########################
@@ -60,22 +60,21 @@ echo "/Developer/usr/share/man"     >  /etc/manpaths.d/888developer
 echo "/Developer/usr/X11/share/man" >> /etc/manpaths.d/888developer
 
 # path_helper is buggy under 10.5
-#cp -npv /usr/libexec/path_helper /usr/libexec/path_helper.orig
-#cp   -v path_helper /usr/libexec/
+# however, messing with system stuff is a bad idea
 
 ;;
 ##################
 # install macports
 'install')
 
-export OLDPWD=`pwd`
+export OLDPWD=$(pwd)
 if [ ! -z "$TMPDIR" ]; then
 	cd $TMPDIR
-	echo "cd `pwd`"
+	echo "cd $(pwd)"
 else
 	export TMPDIR=/tmp
 	cd $TMPDIR
-	echo "cd `pwd`"
+	echo "cd $(pwd)"
 fi
 
 if [ ! -e MacPorts-${version}.tar.gz ]
@@ -90,6 +89,8 @@ if [ -d /Developer/SDKs/MacOSX10.6.sdk/usr/X11/lib ]; then
 	export MP_LDFLAGS=-L/Developer/SDKs/MacOSX10.6.sdk/usr/X11/lib
 fi
 
+set -e
+
 cd MacPorts-${version}
 ./configure LDFLAGS=${MP_LDFLAGS} --prefix=${prefix}
 make
@@ -98,10 +99,10 @@ make install
 # update MacPorts itself
 ${prefix}/bin/port -d selfupdate
 
-# let's get gawk
+# let us get gawk
 ${prefix}/bin/port install gawk
 
-# let's get bash
+# let us get bash
 ${prefix}/bin/port install bash
 
 ;;

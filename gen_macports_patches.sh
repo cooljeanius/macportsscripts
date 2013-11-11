@@ -29,7 +29,7 @@
 
 # taken from https://trac.macports.org/ticket/21640
 
-if [ -z "`which port`" ]; then
+if [ -z "$(which port)" ]; then
 	echo "MacPorts not found, this script is primarily for use with MacPorts."
 	exit 0
 fi

@@ -1,18 +1,18 @@
 #!/bin/bash
 # This script was taken from https://trac.macports.org/wiki/howto/AdvancedDailyAdm
 
-if [ -z "`which port`" ]; then
+if [ -z "$(which port)" ]; then
 	echo "MacPorts not found, this script is primarily for use with MacPorts."
 	exit 0
 fi
 
-if [ -L `which port` ]; then
-	REAL_PORT=$(readlink `which port`)
-	echo "Warning: `which port` is a symlink to ${REAL_PORT}."
+if [ -L "$(which port)" ]; then
+	REAL_PORT=$(readlink "$(which port)")
+	echo "Warning: $(which port) is a symlink to ${REAL_PORT}."
 	export MP_PREFIX=$(dirname $(dirname ${REAL_PORT}))
 	echo "Assuming MP_PREFIX is actually ${MP_PREFIX}."
 else
-	export MP_PREFIX=$(dirname $(dirname `which port`))
+	export MP_PREFIX=$(dirname $(dirname "$(which port)"))
 fi
 
 

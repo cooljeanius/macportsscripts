@@ -4,8 +4,10 @@
 # Taken from:
 # https://trac.macports.org/wiki/Scripts/testport_script
 
-# 1. move the /opt/local MacPorts system to ${opt_local_off} to make sure it is not interfering with the custom ${MP_PREFIX} MacPorts build process
-# 2. move /usr/local to ${usr_local_off} to make sure it is not interfering with the custom ${MP_PREFIX} MacPorts build process
+# 1. move the /opt/local MacPorts system to ${opt_local_off} to make sure
+#    it is not interfering with the custom ${MP_PREFIX} MacPorts build process
+# 2. move /usr/local to ${usr_local_off} to make sure it is not interfering
+#    with the custom ${MP_PREFIX} MacPorts build process
 # 3. install a fresh MacPorts 2.0.4 system to "${MP_PREFIX}"
 # 4. install the specified port to the custom ${MP_PREFIX} MacPorts system
 
@@ -25,9 +27,9 @@
 
 show_usage() {
    echo
-   echo "$(basename $0)  --  test install a specified port in /opt/macports-test (default)"
+   echo "$(basename ${0})  --  test install a specified port in /opt/macports-test (default)"
    echo
-   echo "Usage: $(basename $0) [-c] [-d] [-e] [-h] [-n] [-p] [-r] [-s] [-u] [-v] [-l dir] portname"
+   echo "Usage: $(basename ${0}) [-c] [-d] [-e] [-h] [-n] [-p] [-r] [-s] [-u] [-v] [-l dir] portname"
    echo '
 -c: clean all installed ports
 -d: enable debug mode
