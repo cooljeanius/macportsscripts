@@ -133,7 +133,7 @@ if [ ! -z "${MACH_O_FILES}" ]; then
 					else
 						PORT_TO_REMOVE="$(cat ${TMPFILE0} | uniq | sort | uniq | xargs port -q provides 2>/dev/null | uniq | sort | uniq | grep ${MP_LIBRARY} | uniq | sort | uniq | cut -d\: -f2 | uniq | sort | uniq | tr -d [:blank:])"
 						if [ -z "${PORT_DEPCHECK_KEEP_PORTS_THAT_FAIL_SYMBOL_CHECK}" ]; then
-							echo "no, trying to remove \"${PORT_TO_REMOVE}\" from list of dependencies.."
+							echo "no, trying to remove \"${PORT_TO_REMOVE}\" from list of dependencies..."
 							sed -i "s|\"${PORT_TO_REMOVE}\"||g" "${TMPFILE1}"
 							NEW_TMPFILE1="$(cat ${TMPFILE1} | uniq | sort | uniq)"
 							echo "${NEW_TMPFILE1}" | tr \  \\n > "${TMPFILE1}"
