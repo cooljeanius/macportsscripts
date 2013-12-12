@@ -1,0 +1,574 @@
+
+In Point_Cloud_Library_1.5.1_script.sh line 232:
+   xargs -0 -n 1 /bin/sh -c '
+                            ^-- Expressions don't expand in single quotes, use double quotes for that.
+
+
+In Point_Cloud_Library_1.5.1_script.sh line 261:
+printf '%s\n' H '/-j$(calc_jobs_number)/s///' wq | ed -s RedistMaker
+                ^-- Expressions don't expand in single quotes, use double quotes for that.
+
+
+In Point_Cloud_Library_1.5.1_script.sh line 361:
+   xargs -0 -n 1 /bin/sh -c 'printf "%s\n" H "g/\"\(lib..*\.dylib\)\"/s||\"\${CMAKE_INSTALL_PREFIX}/lib/\1\"|g" wq | /bin/ed -s "${1}"' argv0
+                            ^-- Expressions don't expand in single quotes, use double quotes for that.
+
+
+In Port-Configuration.sh line 31:
+	export MP_PREFIX=$(dirname "$(dirname ${REAL_PORT})")
+                           ^-- Use parameter expansion instead, such as ${var%/*}.
+                                      ^-- Use parameter expansion instead, such as ${var%/*}.
+                                              ^-- Double quote to prevent globbing and word splitting.
+
+
+In Port-Configuration.sh line 34:
+	export MP_PREFIX=$(dirname "$(dirname $(which port))")
+                           ^-- Use parameter expansion instead, such as ${var%/*}.
+                                      ^-- Use parameter expansion instead, such as ${var%/*}.
+                                              ^-- Quote this to prevent word splitting.
+
+
+In Port-Configuration.sh line 42:
+		printf "${line}\n"
+                       ^-- Don't use variables in the printf format string. Use printf "..%s.." "$foo".
+
+
+In Port-Configuration.sh line 55:
+echo "You have $(port -q installed | wc -l | tr -d [:blank:]) ports installed."
+                                                   ^-- Quote parameters to tr to prevent glob expansion.
+
+
+In Port-Configuration.sh line 81:
+	for line in "$(xcodebuild -showsdks)\n"; do
+                    ^-- Since you double quoted this, it will not word split, and the loop will only run once.
+
+
+In Port-Configuration.sh line 98:
+for line in "$(env | sort | uniq | sed "s|$HOME|\\~|")"; do
+            ^-- Since you double quoted this, it will not word split, and the loop will only run once.
+
+
+In avidemux-build.sh line 111:
+for ffmpegfile in ffmpeg-0.10.2.tar.bz2; do
+                  ^-- This loop will only run once, with ffmpegfile='ffmpeg-0.10.2.tar.bz2'.
+
+
+In avidemux-build.sh line 299:
+find /usr/local-avidemux "${avidemux_src_dir}" -iname "*.dylib" | xargs basename | sort | uniq -u
+^-- Use either 'find .. -print0 | xargs -0 ..' or 'find .. -exec .. +' to allow for non-alphanumeric filenames.
+
+
+In gen_macports_patches.sh line 67:
+cd $WORK_DIR/src && cat ../tmp-list-patch | xargs -I{} sh -c "diff -u \"{}\".orig \"{}\" > ../files-patch/patch-\"\$(basename \"{}\")\".diff"; cd "$CURRENT"
+                        ^-- Useless cat. Consider 'cmd < file | ..' or 'cmd file | ..' instead.
+
+
+In gen_macports_patches.sh line 73:
+cd $WORK_DIR && cat tmp-diff | sed -n -e "s/^Only in dst\\(\\/\\{0,1\\}\\)\\(.*\\): \\(.*\\)\$/\\2\\1\\3/gp" > tmp-list-add; cd "$CURRENT"
+                    ^-- Useless cat. Consider 'cmd < file | ..' or 'cmd file | ..' instead.
+
+
+In gen_macports_patches.sh line 74:
+cd $WORK_DIR && cat tmp-list-add | xargs -I{} echo "adding file 'dst/{}'"
+                    ^-- Useless cat. Consider 'cmd < file | ..' or 'cmd file | ..' instead.
+
+
+In install_macports.sh line 80:
+if [ ! -e MacPorts-${version}.tar.gz ]
+                   ^-- Double quote to prevent globbing and word splitting.
+
+
+In install_macports.sh line 85:
+rm  -rf  ./MacPorts-${version}
+                    ^-- Double quote to prevent globbing and word splitting.
+
+
+In install_macports.sh line 86:
+tar -zxf   MacPorts-${version}.tar.gz
+                    ^-- Double quote to prevent globbing and word splitting.
+
+
+In install_macports.sh line 94:
+cd MacPorts-${version}
+            ^-- Double quote to prevent globbing and word splitting.
+
+
+In install_macports.sh line 95:
+./configure LDFLAGS=${MP_LDFLAGS} --prefix=${prefix}
+                                           ^-- Double quote to prevent globbing and word splitting.
+
+
+In install_macports.sh line 100:
+${prefix}/bin/port -d selfupdate
+^-- Double quote to prevent globbing and word splitting.
+
+
+In install_macports.sh line 103:
+${prefix}/bin/port install gawk
+^-- Double quote to prevent globbing and word splitting.
+
+
+In install_macports.sh line 106:
+${prefix}/bin/port install bash
+^-- Double quote to prevent globbing and word splitting.
+
+
+In macportstrac.sh line 11:
+INPUT=($@)
+       ^-- Add double quotes around ${@}, otherwise it's just like $* and breaks on spaces.
+
+
+In macportstrac.sh line 14:
+if [ $1 == "query" ]; then
+     ^-- Double quote to prevent globbing and word splitting.
+
+
+In macportstrac.sh line 21:
+if [ $1 == "viewticket" ]; then
+     ^-- Double quote to prevent globbing and word splitting.
+
+
+In macportsupdate.sh line 17:
+	export MP_PREFIX=$(dirname $(dirname ${REAL_PORT}))
+                           ^-- Use parameter expansion instead, such as ${var%/*}.
+                                   ^-- Quote this to prevent word splitting.
+                                     ^-- Use parameter expansion instead, such as ${var%/*}.
+                                             ^-- Double quote to prevent globbing and word splitting.
+
+
+In macportsupdate.sh line 20:
+	export MP_PREFIX=$(dirname $(dirname "$(which port)"))
+                           ^-- Use parameter expansion instead, such as ${var%/*}.
+                                   ^-- Quote this to prevent word splitting.
+                                     ^-- Use parameter expansion instead, such as ${var%/*}.
+
+
+In macportsupdate.sh line 31:
+(   cd  $( dirname ${0} )
+        ^-- Quote this to prevent word splitting.
+           ^-- Use parameter expansion instead, such as ${var%/*}.
+                   ^-- Double quote to prevent globbing and word splitting.
+
+
+In macportsupdate.sh line 48:
+${installPath}/bin/port -d selfupdate
+^-- Double quote to prevent globbing and word splitting.
+
+
+In macportsupdate.sh line 51:
+        	${installPath}${rsyncMacportsOrg}
+                ^-- Double quote to prevent globbing and word splitting.
+
+
+In macportsupdate.sh line 55:
+for filesDir in $(find portfiles -type d -name 'files')
+                ^-- Use find -exec or a while read loop instead, as for loops over find will fail for filenames like 'my file*.txt'.
+
+
+In macportsupdate.sh line 57:
+    mkdir -p ${installPath}${rsyncMacportsOrg}/${filesDir#*portfiles/}
+             ^-- Double quote to prevent globbing and word splitting.
+                                               ^-- Double quote to prevent globbing and word splitting.
+
+
+In macportsupdate.sh line 58:
+    cp -Rv ${filesDir}/* \
+           ^-- Double quote to prevent globbing and word splitting.
+
+
+In macportsupdate.sh line 59:
+           ${installPath}${rsyncMacportsOrg}/${filesDir#*portfiles/}
+           ^-- Double quote to prevent globbing and word splitting.
+                                             ^-- Double quote to prevent globbing and word splitting.
+
+
+In macportsupdate.sh line 63:
+for portPatch in $(find portfiles -type f -name 'patch-Portfile')
+                 ^-- Use find -exec or a while read loop instead, as for loops over find will fail for filenames like 'my file*.txt'.
+
+
+In macportsupdate.sh line 65:
+    patchFile=$( sed -En -e '1,1p' ${portPatch} | tr -s "\t" " " | cut -f2 -d ' ' )
+                                   ^-- Double quote to prevent globbing and word splitting.
+
+
+In macportsupdate.sh line 66:
+    patch -u <${portPatch} ${patchFile}
+              ^-- Double quote to prevent globbing and word splitting.
+                           ^-- Double quote to prevent globbing and word splitting.
+
+
+In macportsupdate.sh line 70:
+${installPath}/bin/port outdated
+^-- Double quote to prevent globbing and word splitting.
+
+
+In macportsupdate.sh line 73:
+for outDated in $(${installPath}/bin/port outdated | sed -e '1,1d' | tr -s " \t" | cut -f 1 -d ' ')
+                  ^-- Double quote to prevent globbing and word splitting.
+
+
+In macportsupdate.sh line 75:
+    ${installPath}/bin/port -cuRp upgrade ${outDated}
+    ^-- Double quote to prevent globbing and word splitting.
+                                          ^-- Double quote to prevent globbing and word splitting.
+
+
+In macportsupdate.sh line 82:
+find ${installPath} -iname "*.mpsaved" -delete
+     ^-- Double quote to prevent globbing and word splitting.
+
+
+In macportsupdate.sh line 83:
+find ${installPath} -iname "*.mp_*" -delete
+     ^-- Double quote to prevent globbing and word splitting.
+
+
+In macportsupdate.sh line 86:
+${installPath}/bin/port installed | sed -e '1,1d' -e '/active/d' | xargs -n2 ${installPath}/bin/port uninstall
+^-- Double quote to prevent globbing and word splitting.
+                                                                             ^-- Double quote to prevent globbing and word splitting.
+
+
+In port-copy.sh line 12:
+	export MP_PREFIX=$(dirname $(dirname ${REAL_PORT}))
+                           ^-- Use parameter expansion instead, such as ${var%/*}.
+                                   ^-- Quote this to prevent word splitting.
+                                     ^-- Use parameter expansion instead, such as ${var%/*}.
+                                             ^-- Double quote to prevent globbing and word splitting.
+
+
+In port-copy.sh line 15:
+	export MP_PREFIX=$(dirname $(dirname "$(which port)"))
+                           ^-- Use parameter expansion instead, such as ${var%/*}.
+                                   ^-- Quote this to prevent word splitting.
+                                     ^-- Use parameter expansion instead, such as ${var%/*}.
+
+
+In port-copy.sh line 30:
+(   cd  $( dirname ${0} )
+        ^-- Quote this to prevent word splitting.
+           ^-- Use parameter expansion instead, such as ${var%/*}.
+                   ^-- Double quote to prevent globbing and word splitting.
+
+
+In port-copy.sh line 33:
+	echo "Usage: $(basename ${0}) portname"
+                       ^-- Use parameter expansion instead, such as ${var##*/}.
+                                ^-- Double quote to prevent globbing and word splitting.
+
+
+In port-copy.sh line 36:
+if [ -z "$(port list ${1})" ]; then
+                     ^-- Double quote to prevent globbing and word splitting.
+
+
+In port-copy.sh line 46:
+cp ${prefix}/var/macports/sources/rsync.macports.org/release/ports/${portCategory}/${portName}/Portfile \
+   ^-- Double quote to prevent globbing and word splitting.
+
+
+In port-depcheck.sh line 12:
+	echo "Usage: $(basename $0) portname"
+                       ^-- Use parameter expansion instead, such as ${var##*/}.
+                                ^-- Double quote to prevent globbing and word splitting.
+
+
+In port-depcheck.sh line 15:
+if [ -z "$(port list $1)" ]; then
+                     ^-- Double quote to prevent globbing and word splitting.
+
+
+In port-depcheck.sh line 19:
+if [ "$(port installed $1)" = "None of the specified ports are installed." ]; then
+                       ^-- Double quote to prevent globbing and word splitting.
+
+
+In port-depcheck.sh line 20:
+	echo "$(port installed $1)"
+             ^-- Useless echo? Instead of 'echo $(cmd)', just use 'cmd'.
+                               ^-- Double quote to prevent globbing and word splitting.
+
+
+In port-depcheck.sh line 24:
+tempfoo=$(basename $0)
+          ^-- Use parameter expansion instead, such as ${var##*/}.
+                   ^-- Double quote to prevent globbing and word splitting.
+
+
+In port-depcheck.sh line 54:
+TMPFILE0=$(mktemp -q ${TMPDIR}/${tempfoo}.${SUFFIX}0.XXXXXX)
+                               ^-- Double quote to prevent globbing and word splitting.
+                                          ^-- Double quote to prevent globbing and word splitting.
+
+
+In port-depcheck.sh line 59:
+TMPFILE1=$(mktemp -q ${TMPDIR}/${tempfoo}.${SUFFIX}1.XXXXXX)
+                               ^-- Double quote to prevent globbing and word splitting.
+                                          ^-- Double quote to prevent globbing and word splitting.
+
+
+In port-depcheck.sh line 64:
+TMPFILE2=$(mktemp -q ${TMPDIR}/${tempfoo}.${SUFFIX}2.XXXXXX)
+                               ^-- Double quote to prevent globbing and word splitting.
+                                          ^-- Double quote to prevent globbing and word splitting.
+
+
+In port-depcheck.sh line 69:
+TMPFILE3=$(mktemp -q ${TMPDIR}/${tempfoo}.${SUFFIX}3.XXXXXX)
+                               ^-- Double quote to prevent globbing and word splitting.
+                                          ^-- Double quote to prevent globbing and word splitting.
+
+
+In port-depcheck.sh line 74:
+TMPFILE4=$(mktemp -q ${TMPDIR}/${tempfoo}.${SUFFIX}4.XXXXXX)
+                               ^-- Double quote to prevent globbing and word splitting.
+                                          ^-- Double quote to prevent globbing and word splitting.
+
+
+In port-depcheck.sh line 98:
+	export MP_PREFIX=$(dirname $(dirname ${REAL_PORT}))
+                           ^-- Use parameter expansion instead, such as ${var%/*}.
+                                   ^-- Quote this to prevent word splitting.
+                                     ^-- Use parameter expansion instead, such as ${var%/*}.
+                                             ^-- Double quote to prevent globbing and word splitting.
+
+
+In port-depcheck.sh line 101:
+	export MP_PREFIX=$(dirname $(dirname "$(which port)"))
+                           ^-- Use parameter expansion instead, such as ${var%/*}.
+                                   ^-- Quote this to prevent word splitting.
+                                     ^-- Use parameter expansion instead, such as ${var%/*}.
+
+
+In port-depcheck.sh line 116:
+MACH_O_FILES=$(port -q contents $1 | xargs /usr/bin/file | grep Mach-O | cut -d\: -f1 | cut -d\  -f1 | uniq)
+                                ^-- Double quote to prevent globbing and word splitting.
+                                                                               ^-- This \: will be a regular ':' in this context.
+
+
+In port-depcheck.sh line 125:
+		echo $(cat "${TMPFILE0}" | xargs port -q provides 2>/dev/null | grep "is provided by" | tee -a /dev/tty | cut -d\: -f2 | sort | uniq) | sed "s|${1} ||" | tr \  \\n >> "${TMPFILE1}"
+                     ^-- Quote this to prevent word splitting.
+                     ^-- Useless echo? Instead of 'echo $(cmd)', just use 'cmd'.
+                           ^-- Useless cat. Consider 'cmd < file | ..' or 'cmd file | ..' instead.
+                                                                                                                                ^-- This \: will be a regular ':' in this context.
+
+
+In port-depcheck.sh line 129:
+				for MP_LIBRARY in $(echo "${LINKED_AGAINST_LIBS}" | uniq | xargs basename | uniq | cut -d. -f1 | uniq | cut -d\- -f1 | uniq); do
+                                                                                                                                              ^-- This \- will be a regular '-' in this context.
+
+
+In port-depcheck.sh line 131:
+					if [ ! -z "$(grep ${MP_LIBRARY} ${TMPFILE4})" ]; then
+                                                          ^-- Double quote to prevent globbing and word splitting.
+                                                                        ^-- Double quote to prevent globbing and word splitting.
+
+
+In port-depcheck.sh line 134:
+						PORT_TO_REMOVE="$(cat ${TMPFILE0} | uniq | sort | uniq | xargs port -q provides 2>/dev/null | uniq | sort | uniq | grep ${MP_LIBRARY} | uniq | sort | uniq | cut -d\: -f2 | uniq | sort | uniq | tr -d [:blank:])"
+                                                                      ^-- Double quote to prevent globbing and word splitting.
+                                                                      ^-- Useless cat. Consider 'cmd < file | ..' or 'cmd file | ..' instead.
+                                                                                                                                                                        ^-- Double quote to prevent globbing and word splitting.
+                                                                                                                                                                                                                   ^-- This \: will be a regular ':' in this context.
+                                                                                                                                                                                                                                                       ^-- Quote parameters to tr to prevent glob expansion.
+
+
+In port-depcheck.sh line 162:
+		LIBTOOL_ARCHIVES=$(port -q contents $1 | xargs file | grep "libtool library file" | cut -d\: -f1 | cut -d\  -f1 | uniq)
+                                                    ^-- Double quote to prevent globbing and word splitting.
+                                                                                                          ^-- This \: will be a regular ':' in this context.
+
+
+In port-depcheck.sh line 164:
+			DEPENDENCY_LIBS=$(cat "${LIBTOOL_ARCHIVES}" | grep "dependency_libs" | tr \  \\n | grep "$MP_PREFIX" | grep \.la)
+                                              ^-- Useless cat. Consider 'cmd < file | ..' or 'cmd file | ..' instead.
+
+
+In port-depcheck.sh line 171:
+				DEPENDENCY_PROVIDERS=$(echo "${DEPENDENCY_LIBS}" | xargs port -q provides | cut -d\: -f2 | uniq | sort | uniq | tr -d '[:blank:]' | sed "s|${1}||" | tr -d '[:blank:]' | uniq | tee -a /dev/tty)
+                                                                                                                  ^-- This \: will be a regular ':' in this context.
+
+
+In port-depcheck.sh line 192:
+echo "Finding the libraries that $(port file ${1}) lists as dependencies..."
+                                             ^-- Double quote to prevent globbing and word splitting.
+
+
+In port-fetch-all.sh line 7:
+	echo "Usage: $(basename ${0}) PORTNAME"
+                       ^-- Use parameter expansion instead, such as ${var##*/}.
+                                ^-- Double quote to prevent globbing and word splitting.
+
+
+In port-fetch-all.sh line 22:
+	export MP_PREFIX=$(dirname $(dirname ${REAL_PORT}))
+                           ^-- Use parameter expansion instead, such as ${var%/*}.
+                                   ^-- Quote this to prevent word splitting.
+                                     ^-- Use parameter expansion instead, such as ${var%/*}.
+                                             ^-- Double quote to prevent globbing and word splitting.
+
+
+In port-fetch-all.sh line 25:
+	export MP_PREFIX=$(dirname $(dirname "$(which port)"))
+                           ^-- Use parameter expansion instead, such as ${var%/*}.
+                                   ^-- Quote this to prevent word splitting.
+                                     ^-- Use parameter expansion instead, such as ${var%/*}.
+
+
+In port-fetch-all.sh line 32:
+for i in $(port -q rdeps ${1} | tr -d [:blank:] | tr \\n \ )
+                         ^-- Double quote to prevent globbing and word splitting.
+                                      ^-- Quote parameters to tr to prevent glob expansion.
+
+
+In port-patch.sh line 12:
+	export MP_PREFIX=$(dirname $(dirname ${REAL_PORT}))
+                           ^-- Use parameter expansion instead, such as ${var%/*}.
+                                   ^-- Quote this to prevent word splitting.
+                                     ^-- Use parameter expansion instead, such as ${var%/*}.
+                                             ^-- Double quote to prevent globbing and word splitting.
+
+
+In port-patch.sh line 15:
+	export MP_PREFIX=$(dirname $(dirname "$(which port)"))
+                           ^-- Use parameter expansion instead, such as ${var%/*}.
+                                   ^-- Quote this to prevent word splitting.
+                                     ^-- Use parameter expansion instead, such as ${var%/*}.
+
+
+In port-patch.sh line 32:
+(   cd $( dirname ${0} )
+       ^-- Quote this to prevent word splitting.
+          ^-- Use parameter expansion instead, such as ${var%/*}.
+                  ^-- Double quote to prevent globbing and word splitting.
+
+
+In port-patch.sh line 37:
+for port in $(find portfiles -name 'Portfile')
+            ^-- Use find -exec or a while read loop instead, as for loops over find will fail for filenames like 'my file*.txt'.
+
+
+In port-patch.sh line 40:
+    rm ${outputFile} 2>/dev/null
+       ^-- Double quote to prevent globbing and word splitting.
+
+
+In port-patch.sh line 42:
+        ${prefix}${rsyncMacportsOrg}/${port#*/} \
+        ^-- Double quote to prevent globbing and word splitting.
+                                     ^-- Double quote to prevent globbing and word splitting.
+
+
+In port-patch.sh line 43:
+        ${port} \
+        ^-- Double quote to prevent globbing and word splitting.
+
+
+In port-patch.sh line 44:
+    > ${outputFile}
+      ^-- Double quote to prevent globbing and word splitting.
+
+
+In port-patch.sh line 46:
+    mv ${port} ${port}.OK
+       ^-- Double quote to prevent globbing and word splitting.
+               ^-- Double quote to prevent globbing and word splitting.
+
+
+In port-unprovided.sh line 26:
+tempfoo=$(basename $0)
+          ^-- Use parameter expansion instead, such as ${var##*/}.
+                   ^-- Double quote to prevent globbing and word splitting.
+
+
+In port-unprovided.sh line 50:
+TMPFILE1=$(mktemp -q $TMPDIR/${tempfoo}.${SUFFIX}.log)
+                             ^-- Double quote to prevent globbing and word splitting.
+                                        ^-- Double quote to prevent globbing and word splitting.
+
+
+In port-unprovided.sh line 59:
+	export MP_PREFIX=$(dirname $(dirname ${REAL_PORT}))
+                           ^-- Use parameter expansion instead, such as ${var%/*}.
+                                   ^-- Quote this to prevent word splitting.
+                                     ^-- Use parameter expansion instead, such as ${var%/*}.
+                                             ^-- Double quote to prevent globbing and word splitting.
+
+
+In port-unprovided.sh line 62:
+	export MP_PREFIX=$(dirname $(dirname "$(which port)"))
+                           ^-- Use parameter expansion instead, such as ${var%/*}.
+                                   ^-- Quote this to prevent word splitting.
+                                     ^-- Use parameter expansion instead, such as ${var%/*}.
+
+
+In port-unprovided.sh line 80:
+		for directory in $(find $MP_PREFIX/* \( -path $MP_PREFIX/var/macports -prune \) -o -print 2>/dev/null); do
+                                 ^-- Use find -exec or a while read loop instead, as for loops over find will fail for filenames like 'my file*.txt'.
+
+
+In port-unprovided.sh line 81:
+			if [ -d ${directory} ]; then
+                                ^-- Double quote to prevent globbing and word splitting.
+
+
+In port-unprovided.sh line 82:
+				if [ -z "$(port provides ${directory}/* | grep "is not provided by a MacPorts port.")" ]; then
+                                                         ^-- Double quote to prevent globbing and word splitting.
+
+
+In port-unprovided.sh line 85:
+					port provides ${directory}/* | grep "is not provided by a MacPorts port." | tee -a "${TMPFILE1}"
+                                                      ^-- Double quote to prevent globbing and word splitting.
+
+
+In port-unprovided.sh line 91:
+			if [ -z "$(port provides ${directory}/* | grep "is not provided by a MacPorts port.")" ]; then
+                                                 ^-- Double quote to prevent globbing and word splitting.
+
+
+In port-unprovided.sh line 94:
+				port provides ${directory}/* | grep "is not provided by a MacPorts port." | tee -a "${TMPFILE1}"
+                                              ^-- Double quote to prevent globbing and word splitting.
+
+
+In port-unprovided.sh line 99:
+if [ ! -z "$(cat ${TMPFILE1})" ]; then
+                 ^-- Double quote to prevent globbing and word splitting.
+
+
+In testport_script.sh line 30:
+   echo "$(basename ${0})  --  test install a specified port in /opt/macports-test (default)"
+           ^-- Use parameter expansion instead, such as ${var##*/}.
+                    ^-- Double quote to prevent globbing and word splitting.
+
+
+In testport_script.sh line 32:
+   echo "Usage: $(basename ${0}) [-c] [-d] [-e] [-h] [-n] [-p] [-r] [-s] [-u] [-v] [-l dir] portname"
+                  ^-- Use parameter expansion instead, such as ${var##*/}.
+                           ^-- Double quote to prevent globbing and word splitting.
+
+
+In testport_script.sh line 78:
+      portname="$( basename "$(dirname "${dirpath}")" )"
+                   ^-- Use parameter expansion instead, such as ${var##*/}.
+                               ^-- Use parameter expansion instead, such as ${var%/*}.
+
+
+In testport_script.sh line 88:
+      portname="$( basename "$(dirname "${dirpath}")" )"
+                   ^-- Use parameter expansion instead, such as ${var##*/}.
+                               ^-- Use parameter expansion instead, such as ${var%/*}.
+
+
+In testport_script.sh line 191:
+if [[ $(dirname "${MP_PREFIX}") != '/opt' ]]; then
+        ^-- Use parameter expansion instead, such as ${var%/*}.
+
+
+In testport_script.sh line 292:
+   if [[ -d "${MP_PREFIX}" ]] && [[ $(dirname "${MP_PREFIX}") == '/opt' ]]; then
+                                      ^-- Use parameter expansion instead, such as ${var%/*}.
+

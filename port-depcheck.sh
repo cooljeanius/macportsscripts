@@ -124,7 +124,7 @@ if [ ! -z "${MACH_O_FILES}" ]; then
 		# This is the part where we actually get the ports linked against:
 		echo $(cat "${TMPFILE0}" | xargs port -q provides 2>/dev/null | grep "is provided by" | tee -a /dev/tty | cut -d\: -f2 | sort | uniq) | sed "s|${1} ||" | tr \  \\n >> "${TMPFILE1}"
 		if [ ! -z "${SYMBOLS}" -a -e "${TMPFILE4}" ]; then
-			if [ -z "$PORT_DEPCHECK_SKIP_NM_SYMBOL_CHECK" ]; then
+			if [ -z "${PORT_DEPCHECK_SKIP_NM_SYMBOL_CHECK}" ]; then
 				echo "Checking symbols in linked-against libraries..."
 				for MP_LIBRARY in $(echo "${LINKED_AGAINST_LIBS}" | uniq | xargs basename | uniq | cut -d. -f1 | uniq | cut -d\- -f1 | uniq); do
 					echo "Checking to see if ${1} actually uses symbols from ${MP_LIBRARY}... \c"
