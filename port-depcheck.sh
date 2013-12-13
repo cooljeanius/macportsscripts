@@ -127,7 +127,7 @@ if [ ! -z "${MACH_O_FILES}" ]; then
 			if [ -z "${PORT_DEPCHECK_SKIP_NM_SYMBOL_CHECK}" ]; then
 				echo "Checking symbols in linked-against libraries..."
 				for MP_LIBRARY in $(echo "${LINKED_AGAINST_LIBS}" | uniq | xargs basename | uniq | cut -d. -f1 | uniq | cut -d\- -f1 | uniq); do
-					echo "Checking to see if ${1} actually uses symbols from ${MP_LIBRARY}... \c"
+					printf "Checking to see if %s actually uses symbols from %s... " "${1}" "${MP_LIBRARY}"
 					if [ ! -z "$(grep ${MP_LIBRARY} ${TMPFILE4})" ]; then
 						echo "yes"
 					else
