@@ -1,5 +1,9 @@
 #!/bin/sh
 # Taken from https://trac.macports.org/wiki/KDEProblems/KDETickets/KDE4-Category
+# There is a separate one for localization ones at:
+# https://trac.macports.org/wiki/KDEProblems/KDETickets/KDE4-Category/KDE4-l10n
+# (TODO: make a more generalizable version?)
+
 
 echo "||'''Port'''||'''Category'''||'''Repository'''||'''Tickets'''||"; \
 for name in $(port echo "category:(\W|^)$1(\W|$)"); do \
